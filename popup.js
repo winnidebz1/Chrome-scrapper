@@ -15,21 +15,21 @@ let filteredLeads = [];
 // DOM ELEMENTS
 // ===========================
 const elements = {
-    scanBtn: document.getElementById('scanBtn'),
-    exportBtn: document.getElementById('exportBtn'),
-    copyBtn: document.getElementById('copyBtn'),
-    clearResults: document.getElementById('clearResults'),
-    clearFilters: document.getElementById('clearFilters'),
+  scanBtn: document.getElementById('scanBtn'),
+  exportBtn: document.getElementById('exportBtn'),
+  copyBtn: document.getElementById('copyBtn'),
+  clearResults: document.getElementById('clearResults'),
+  clearFilters: document.getElementById('clearFilters'),
 
-    filterNoWebsite: document.getElementById('filterNoWebsite'),
-    filterHasPhone: document.getElementById('filterHasPhone'),
-    filterActive: document.getElementById('filterActive'),
-    minReviews: document.getElementById('minReviews'),
+  filterNoWebsite: document.getElementById('filterNoWebsite'),
+  filterHasPhone: document.getElementById('filterHasPhone'),
+  filterActive: document.getElementById('filterActive'),
+  minReviews: document.getElementById('minReviews'),
 
-    totalLeads: document.getElementById('totalLeads'),
-    resultsCount: document.getElementById('resultsCount'),
-    resultsTable: document.getElementById('resultsTable'),
-    statusMessage: document.getElementById('statusMessage'),
+  totalLeads: document.getElementById('totalLeads'),
+  resultsCount: document.getElementById('resultsCount'),
+  resultsTable: document.getElementById('resultsTable'),
+  statusMessage: document.getElementById('statusMessage'),
 };
 
 // ===========================
@@ -40,69 +40,69 @@ const elements = {
  * Show status message
  */
 function showStatus(message, type = 'info') {
-    elements.statusMessage.textContent = message;
-    elements.statusMessage.className = `status-message ${type}`;
-    elements.statusMessage.classList.remove('hidden');
+  elements.statusMessage.textContent = message;
+  elements.statusMessage.className = `status-message ${type}`;
+  elements.statusMessage.classList.remove('hidden');
 
-    // Auto-hide after 5 seconds
-    setTimeout(() => {
-        elements.statusMessage.classList.add('hidden');
-    }, 5000);
+  // Auto-hide after 5 seconds
+  setTimeout(() => {
+    elements.statusMessage.classList.add('hidden');
+  }, 5000);
 }
 
 /**
  * Update UI stats
  */
 function updateStats() {
-    elements.totalLeads.textContent = `${allLeads.length} Lead${allLeads.length !== 1 ? 's' : ''}`;
-    elements.resultsCount.textContent = filteredLeads.length;
+  elements.totalLeads.textContent = `${allLeads.length} Lead${allLeads.length !== 1 ? 's' : ''}`;
+  elements.resultsCount.textContent = filteredLeads.length;
 
-    // Enable/disable buttons based on results
-    const hasResults = filteredLeads.length > 0;
-    elements.exportBtn.disabled = !hasResults;
-    elements.copyBtn.disabled = !hasResults;
-    elements.clearResults.disabled = allLeads.length === 0;
+  // Enable/disable buttons based on results
+  const hasResults = filteredLeads.length > 0;
+  elements.exportBtn.disabled = !hasResults;
+  elements.copyBtn.disabled = !hasResults;
+  elements.clearResults.disabled = allLeads.length === 0;
 }
 
 /**
  * Apply filters to leads
  */
 function applyFilters() {
-    filteredLeads = allLeads.filter(lead => {
-        // Filter: No Website Only
-        if (elements.filterNoWebsite.checked && lead.hasWebsite) {
-            return false;
-        }
+  filteredLeads = allLeads.filter(lead => {
+    // Filter: No Website Only
+    if (elements.filterNoWebsite.checked && lead.hasWebsite) {
+      return false;
+    }
 
-        // Filter: Has Phone
-        if (elements.filterHasPhone.checked && (!lead.phone || lead.phone === 'Not available')) {
-            return false;
-        }
+    // Filter: Has Phone
+    if (elements.filterHasPhone.checked && (!lead.phone || lead.phone === 'Not available')) {
+      return false;
+    }
 
-        // Filter: Active Only
-        if (elements.filterActive.checked && !lead.isActive) {
-            return false;
-        }
+    // Filter: Active Only
+    if (elements.filterActive.checked && !lead.isActive) {
+      return false;
+    }
 
-        // Filter: Minimum Reviews
-        const minReviews = parseInt(elements.minReviews.value) || 0;
-        if (lead.reviewCount < minReviews) {
-            return false;
-        }
+    // Filter: Minimum Reviews
+    const minReviews = parseInt(elements.minReviews.value) || 0;
+    if (lead.reviewCount < minReviews) {
+      return false;
+    }
 
-        return true;
-    });
+    return true;
+  });
 
-    renderResults();
-    updateStats();
+  renderResults();
+  updateStats();
 }
 
 /**
  * Render results in the UI
  */
 function renderResults() {
-    if (filteredLeads.length === 0) {
-        elements.resultsTable.innerHTML = `
+  if (filteredLeads.length === 0) {
+    elements.resultsTable.innerHTML = `
       <div class="empty-state">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -111,11 +111,11 @@ function renderResults() {
         <small>${allLeads.length > 0 ? 'Try adjusting your filters' : 'Click "Scan Page" to start finding leads'}</small>
       </div>
     `;
-        return;
-    }
+    return;
+  }
 
-    // Render lead cards
-    elements.resultsTable.innerHTML = filteredLeads.map(lead => `
+  // Render lead cards
+  elements.resultsTable.innerHTML = filteredLeads.map(lead => `
     <div class="lead-card" data-id="${lead.id}">
       <div class="lead-header">
         <div class="lead-title">
@@ -171,234 +171,263 @@ function renderResults() {
  * Escape HTML to prevent XSS
  */
 function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
 }
 
 /**
  * Open Google Maps URL
  */
 window.openMapsUrl = function (url) {
-    chrome.tabs.create({ url });
+  chrome.tabs.create({ url });
 };
 
 /**
  * Export leads to CSV
  */
 function exportToCSV() {
-    if (filteredLeads.length === 0) {
-        showStatus('No leads to export', 'error');
-        return;
-    }
+  if (filteredLeads.length === 0) {
+    showStatus('No leads to export', 'error');
+    return;
+  }
 
-    // CSV headers
-    const headers = [
-        'Business Name',
-        'Category',
-        'Phone',
-        'Address',
-        'Rating',
-        'Reviews',
-        'Website Status',
-        'Activity Status',
-        'Google Maps URL',
-        'Scraped At'
-    ];
+  // CSV headers
+  const headers = [
+    'Business Name',
+    'Category',
+    'Phone',
+    'Address',
+    'Rating',
+    'Reviews',
+    'Website Status',
+    'Activity Status',
+    'Google Maps URL',
+    'Scraped At'
+  ];
 
-    // CSV rows
-    const rows = filteredLeads.map(lead => [
-        lead.name,
-        lead.category,
-        lead.phone,
-        lead.address,
-        lead.rating || 'N/A',
-        lead.reviewCount || 0,
-        lead.websiteStatus,
-        lead.activityStatus,
-        lead.mapsUrl,
-        lead.scrapedAt
-    ]);
+  // CSV rows
+  const rows = filteredLeads.map(lead => [
+    lead.name,
+    lead.category,
+    lead.phone,
+    lead.address,
+    lead.rating || 'N/A',
+    lead.reviewCount || 0,
+    lead.websiteStatus,
+    lead.activityStatus,
+    lead.mapsUrl,
+    lead.scrapedAt
+  ]);
 
-    // Combine headers and rows
-    const csvContent = [
-        headers.join(','),
-        ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
-    ].join('\n');
+  // Combine headers and rows
+  const csvContent = [
+    headers.join(','),
+    ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+  ].join('\n');
 
-    // Create download
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `leads_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  // Create download
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', `leads_${new Date().toISOString().split('T')[0]}.csv`);
+  link.style.display = 'none';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 
-    showStatus(`Exported ${filteredLeads.length} leads to CSV`, 'success');
+  showStatus(`Exported ${filteredLeads.length} leads to CSV`, 'success');
 }
 
 /**
  * Copy leads to clipboard
  */
 async function copyToClipboard() {
-    if (filteredLeads.length === 0) {
-        showStatus('No leads to copy', 'error');
-        return;
-    }
+  if (filteredLeads.length === 0) {
+    showStatus('No leads to copy', 'error');
+    return;
+  }
 
-    const text = filteredLeads.map(lead =>
-        `${lead.name}\n` +
-        `Category: ${lead.category}\n` +
-        `Phone: ${lead.phone}\n` +
-        `Address: ${lead.address}\n` +
-        `Rating: ${lead.rating || 'N/A'} (${lead.reviewCount || 0} reviews)\n` +
-        `Website: ${lead.websiteStatus}\n` +
-        `Status: ${lead.activityStatus}\n` +
-        `Maps: ${lead.mapsUrl}\n` +
-        `---`
-    ).join('\n\n');
+  const text = filteredLeads.map(lead =>
+    `${lead.name}\n` +
+    `Category: ${lead.category}\n` +
+    `Phone: ${lead.phone}\n` +
+    `Address: ${lead.address}\n` +
+    `Rating: ${lead.rating || 'N/A'} (${lead.reviewCount || 0} reviews)\n` +
+    `Website: ${lead.websiteStatus}\n` +
+    `Status: ${lead.activityStatus}\n` +
+    `Maps: ${lead.mapsUrl}\n` +
+    `---`
+  ).join('\n\n');
 
-    try {
-        await navigator.clipboard.writeText(text);
-        showStatus(`Copied ${filteredLeads.length} leads to clipboard`, 'success');
-    } catch (error) {
-        showStatus('Failed to copy to clipboard', 'error');
-    }
+  try {
+    await navigator.clipboard.writeText(text);
+    showStatus(`Copied ${filteredLeads.length} leads to clipboard`, 'success');
+  } catch (error) {
+    showStatus('Failed to copy to clipboard', 'error');
+  }
 }
 
 /**
  * Clear all results
  */
 async function clearAllResults() {
-    if (!confirm('Are you sure you want to clear all results?')) {
-        return;
-    }
+  if (!confirm('Are you sure you want to clear all results?')) {
+    return;
+  }
 
-    try {
-        // Send message to content script
-        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  try {
+    // Send message to content script
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-        if (tab) {
-            chrome.tabs.sendMessage(tab.id, { action: 'clearResults' }, (response) => {
-                if (chrome.runtime.lastError) {
-                    console.error('Error:', chrome.runtime.lastError);
-                }
-            });
+    if (tab) {
+      chrome.tabs.sendMessage(tab.id, { action: 'clearResults' }, (response) => {
+        if (chrome.runtime.lastError) {
+          console.error('Error:', chrome.runtime.lastError);
         }
-
-        // Clear local storage
-        await chrome.storage.local.remove(['leads', 'lastScan']);
-
-        // Reset state
-        allLeads = [];
-        filteredLeads = [];
-
-        renderResults();
-        updateStats();
-
-        showStatus('All results cleared', 'success');
-    } catch (error) {
-        console.error('Error clearing results:', error);
-        showStatus('Failed to clear results', 'error');
+      });
     }
+
+    // Clear local storage
+    await chrome.storage.local.remove(['leads', 'lastScan']);
+
+    // Reset state
+    allLeads = [];
+    filteredLeads = [];
+
+    renderResults();
+    updateStats();
+
+    showStatus('All results cleared', 'success');
+  } catch (error) {
+    console.error('Error clearing results:', error);
+    showStatus('Failed to clear results', 'error');
+  }
 }
 
 /**
  * Clear all filters
  */
 function clearAllFilters() {
-    elements.filterNoWebsite.checked = true;
-    elements.filterHasPhone.checked = false;
-    elements.filterActive.checked = false;
-    elements.minReviews.value = 0;
+  elements.filterNoWebsite.checked = true;
+  elements.filterHasPhone.checked = false;
+  elements.filterActive.checked = false;
+  elements.minReviews.value = 0;
 
-    applyFilters();
-    showStatus('Filters cleared', 'info');
+  applyFilters();
+  showStatus('Filters cleared', 'info');
 }
 
 /**
  * Scan current page
  */
 async function scanPage() {
-    try {
-        // Disable scan button
-        elements.scanBtn.disabled = true;
-        elements.scanBtn.innerHTML = `
+  try {
+    // Disable scan button
+    elements.scanBtn.disabled = true;
+    elements.scanBtn.innerHTML = `
       <div class="spinner"></div>
       Scanning...
     `;
 
-        showStatus('Scanning page for businesses...', 'info');
+    showStatus('Scanning page for businesses...', 'info');
 
-        // Get active tab
-        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    // Get active tab
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-        if (!tab) {
-            throw new Error('No active tab found');
-        }
+    if (!tab) {
+      throw new Error('No active tab found');
+    }
 
-        // Check if on Google Maps
-        if (!tab.url.includes('google.com/maps')) {
-            throw new Error('Please navigate to Google Maps search results first');
-        }
+    console.log('Current tab URL:', tab.url);
 
-        // Send message to content script
-        chrome.tabs.sendMessage(tab.id, { action: 'scanPage' }, (response) => {
-            // Re-enable button
-            elements.scanBtn.disabled = false;
-            elements.scanBtn.innerHTML = `
+    // Check if on Google Maps - more flexible check
+    if (!tab.url || !tab.url.includes('google.com/maps')) {
+      throw new Error('Please navigate to Google Maps (https://www.google.com/maps) and search for businesses first');
+    }
+
+    // Try to inject content script if not already loaded
+    try {
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: ['contentScript.js']
+      });
+      console.log('Content script injected');
+      // Wait a moment for script to initialize
+      await new Promise(resolve => setTimeout(resolve, 500));
+    } catch (injectError) {
+      console.log('Content script already loaded or injection failed:', injectError.message);
+    }
+
+    // Send message to content script with timeout
+    const sendMessageWithTimeout = (tabId, message, timeout = 10000) => {
+      return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => {
+          reject(new Error('Scan timeout - please refresh the page and try again'));
+        }, timeout);
+
+        chrome.tabs.sendMessage(tabId, message, (response) => {
+          clearTimeout(timer);
+
+          if (chrome.runtime.lastError) {
+            reject(new Error('Could not connect to page. Please refresh Google Maps and try again.'));
+            return;
+          }
+
+          resolve(response);
+        });
+      });
+    };
+
+    const response = await sendMessageWithTimeout(tab.id, { action: 'scanPage' });
+
+    // Re-enable button
+    elements.scanBtn.disabled = false;
+    elements.scanBtn.innerHTML = `
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         Scan Page
       `;
 
-            if (chrome.runtime.lastError) {
-                showStatus('Error: ' + chrome.runtime.lastError.message, 'error');
-                return;
-            }
+    if (response && response.success) {
+      allLeads = response.leads || [];
+      applyFilters();
+      showStatus(response.message, 'success');
+    } else {
+      showStatus(response?.message || 'Scan failed - no businesses found', 'error');
+    }
 
-            if (response && response.success) {
-                allLeads = response.leads || [];
-                applyFilters();
-                showStatus(response.message, 'success');
-            } else {
-                showStatus(response?.message || 'Scan failed', 'error');
-            }
-        });
+  } catch (error) {
+    console.error('Scan error:', error);
+    showStatus(error.message, 'error');
 
-    } catch (error) {
-        console.error('Scan error:', error);
-        showStatus(error.message, 'error');
-
-        // Re-enable button
-        elements.scanBtn.disabled = false;
-        elements.scanBtn.innerHTML = `
+    // Re-enable button
+    elements.scanBtn.disabled = false;
+    elements.scanBtn.innerHTML = `
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       Scan Page
     `;
-    }
+  }
 }
 
 /**
  * Load saved results from storage
  */
 async function loadSavedResults() {
-    try {
-        const data = await chrome.storage.local.get(['leads']);
-        if (data.leads && data.leads.length > 0) {
-            allLeads = data.leads;
-            applyFilters();
-            console.log(`📦 Loaded ${allLeads.length} saved leads`);
-        }
-    } catch (error) {
-        console.error('Error loading saved results:', error);
+  try {
+    const data = await chrome.storage.local.get(['leads']);
+    if (data.leads && data.leads.length > 0) {
+      allLeads = data.leads;
+      applyFilters();
+      console.log(`📦 Loaded ${allLeads.length} saved leads`);
     }
+  } catch (error) {
+    console.error('Error loading saved results:', error);
+  }
 }
 
 // ===========================
