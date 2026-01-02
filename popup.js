@@ -367,17 +367,14 @@ async function scanPage() {
     // Detect which business directory we're on
     const supportedSites = [
       { name: 'Google Maps', pattern: 'google.com/maps', example: 'https://www.google.com/maps' },
-      { name: 'Yelp', pattern: 'yelp.com', example: 'https://www.yelp.com/search?find_desc=restaurants' },
-      { name: 'Yellow Pages', pattern: 'yellowpages.com', example: 'https://www.yellowpages.com/search' },
-      { name: 'Facebook', pattern: 'facebook.com', example: 'https://www.facebook.com/search' },
-      { name: 'LinkedIn', pattern: 'linkedin.com', example: 'https://www.linkedin.com/search' }
+      { name: 'GhanaYello', pattern: 'ghanayello.com', example: 'https://www.ghanayello.com' }
     ];
 
     const currentSite = supportedSites.find(site => tab.url && tab.url.includes(site.pattern));
 
     if (!currentSite) {
-      const siteList = supportedSites.map(s => s.name).join(', ');
-      throw new Error(`Please navigate to a supported business directory first:\n${siteList}`);
+      const siteList = supportedSites.map(s => `${s.name} (${s.example})`).join('\n');
+      throw new Error(`Please navigate to a supported business directory:\n\n${siteList}`);
     }
 
     console.log(`📍 Detected: ${currentSite.name}`);

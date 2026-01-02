@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
-    "name": "Lead Finder Pro - Business Scraper",
-    "version": "1.1.0",
-    "description": "Identify active businesses without websites on Google Maps, Yelp, Yellow Pages, and more for lead generation",
+    "name": "Lead Finder Pro - Ghana Business Scraper",
+    "version": "1.2.0",
+    "description": "Find active businesses without websites in Ghana - Google Maps and GhanaYello",
     "permissions": [
         "activeTab",
         "scripting",
@@ -11,10 +11,8 @@
     "host_permissions": [
         "https://www.google.com/maps/*",
         "https://maps.google.com/*",
-        "https://www.yelp.com/*",
-        "https://www.yellowpages.com/*",
-        "https://www.facebook.com/*",
-        "https://www.linkedin.com/*"
+        "https://www.ghanayello.com/*",
+        "https://ghanayello.com/*"
     ],
     "action": {
         "default_popup": "popup.html",
@@ -37,19 +35,11 @@
         },
         {
             "matches": [
-                "https://www.yelp.com/*"
+                "https://www.ghanayello.com/*",
+                "https://ghanayello.com/*"
             ],
             "js": [
-                "contentScriptYelp.js"
-            ],
-            "run_at": "document_idle"
-        },
-        {
-            "matches": [
-                "https://www.yellowpages.com/*"
-            ],
-            "js": [
-                "contentScriptYellowPages.js"
+                "contentScriptGhanaYello.js"
             ],
             "run_at": "document_idle"
         }

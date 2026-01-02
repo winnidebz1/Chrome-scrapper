@@ -1,9 +1,9 @@
 // ===========================
-// CONTENT SCRIPT - Yellow Pages Scraper
-// Runs on Yellow Pages to extract business data
+// CONTENT SCRIPT - GhanaYello Scraper
+// Scrapes Ghana's Yellow Pages (ghanayello.com)
 // ===========================
 
-console.log('🔍 Lead Finder Pro: Yellow Pages content script loaded');
+console.log('🇬🇭 Lead Finder Pro: GhanaYello content script loaded');
 
 // ===========================
 // CONFIGURATION
@@ -11,21 +11,23 @@ console.log('🔍 Lead Finder Pro: Yellow Pages content script loaded');
 const CONFIG = {
     selectors: {
         // Main business listing containers
-        businessCard: '.result',
-        businessList: '.search-results',
+        businessCard: '.listing-item, .business-listing, .company-item, article.listing',
+        businessList: '.listings, .search-results, .business-list',
 
         // Business details
-        businessName: '.business-name',
-        category: '.categories a',
-        rating: '.result-rating',
-        reviewCount: '.count',
-        address: '.street-address',
-        phone: '.phones',
-        website: 'a.track-visit-website',
+        businessName: 'h2 a, h3 a, .business-name, .company-name, .listing-title',
+        category: '.category, .business-category, .listing-category',
+        rating: '.rating, .stars, .review-rating',
+        reviewCount: '.review-count, .reviews',
+        address: '.address, .location, .business-address',
+        phone: '.phone, .telephone, .contact-phone, a[href^="tel:"]',
+        website: 'a.website, a[href*="http"]:not([href*="ghanayello"]), .website-link',
+        hours: '.hours, .opening-hours, .business-hours',
 
         // Alternative selectors
-        altBusinessName: 'h2.n a',
-        altPhone: '.phone',
+        altBusinessName: '.title a, h4 a',
+        altPhone: '.contact-info .phone',
+        altAddress: '.contact-info .address',
     },
 
     // Activity detection thresholds
@@ -67,20 +69,34 @@ function extractNumber(text) {
     return match ? parseFloat(match[0]) : null;
 }
 
-function hasNoWebsite(websiteElement) {
+function hasNoWebsite(card) {
+    // Try to find website link
+    const websiteElement = card.querySelector(CONFIG.selectors.website);
+
     if (!websiteElement) return true;
+
     const href = websiteElement.getAttribute('href') || '';
-    return !href || href === '#' || href.startsWith('javascript:');
+    const text = websiteElement.textContent?.trim().toLowerCase() || '';
+
+    // Check for invalid indicators
+    const noWebsiteIndicators = ['—', '-', 'n/a', 'not available', 'no website', ''];
+
+    if (noWebsiteIndicators.includes(text)) return true;
+    if (!href || href === '#' || href.startsWith('javascript:')) return true;
+    if (href.includes('ghanayello.com')) return true; // Internal link, not external website
+
+    return false;
 }
 
 function isBusinessActive(businessData) {
     let criteriaCount = 0;
 
-    if (businessData.phone) criteriaCount++;
+    if (businessData.phone && businessData.phone !== 'Not available') criteriaCount++;
+    if (businessData.address && businessData.address !== 'Not available') criteriaCount++;
     if (businessData.reviewCount && businessData.reviewCount >= CONFIG.activityThresholds.minReviews) {
         criteriaCount++;
     }
-    if (businessData.address && businessData.address !== 'Not available') criteriaCount++;
+    if (businessData.hours && businessData.hours !== 'Not available') criteriaCount++;
 
     return criteriaCount >= CONFIG.activityThresholds.minCriteria;
 }
@@ -91,6 +107,7 @@ function isBusinessActive(businessData) {
 
 function extractBusinessData(card) {
     try {
+        // Try multiple selectors for business name
         const nameElement = card.querySelector(CONFIG.selectors.businessName) ||
             card.querySelector(CONFIG.selectors.altBusinessName);
         const name = extractText(nameElement);
@@ -104,7 +121,7 @@ function extractBusinessData(card) {
 
         // Extract category
         const categoryElement = card.querySelector(CONFIG.selectors.category);
-        const category = extractText(categoryElement) || 'Unknown';
+        const category = extractText(categoryElement) || 'Business';
 
         // Extract rating and reviews
         const ratingElement = card.querySelector(CONFIG.selectors.rating);
@@ -118,18 +135,33 @@ function extractBusinessData(card) {
         // Extract contact information
         const phoneElement = card.querySelector(CONFIG.selectors.phone) ||
             card.querySelector(CONFIG.selectors.altPhone);
-        const phone = extractText(phoneElement) || 'Not available';
+        let phone = extractText(phoneElement) || 'Not available';
 
-        const addressElement = card.querySelector(CONFIG.selectors.address);
+        // Clean phone number
+        if (phone.startsWith('tel:')) {
+            phone = phone.replace('tel:', '').trim();
+        }
+
+        const addressElement = card.querySelector(CONFIG.selectors.address) ||
+            card.querySelector(CONFIG.selectors.altAddress);
         const address = extractText(addressElement) || 'Not available';
 
         // Check website status
-        const websiteElement = card.querySelector(CONFIG.selectors.website);
-        const hasWebsite = !hasNoWebsite(websiteElement);
+        const hasWebsite = !hasNoWebsite(card);
 
-        // Get Yellow Pages URL
-        const linkElement = card.querySelector('.business-name');
-        const ypUrl = linkElement ? linkElement.getAttribute('href') : window.location.href;
+        // Extract business hours
+        const hoursElement = card.querySelector(CONFIG.selectors.hours);
+        const hours = extractText(hoursElement) || 'Not available';
+
+        // Get GhanaYello URL
+        const linkElement = card.querySelector('a[href*="/business/"], a[href*="/company/"]') || nameElement;
+        let ghanaYelloUrl = window.location.href;
+        if (linkElement) {
+            const href = linkElement.getAttribute('href');
+            if (href) {
+                ghanaYelloUrl = href.startsWith('http') ? href : 'https://www.ghanayello.com' + href;
+            }
+        }
 
         const businessData = {
             id: businessId,
@@ -141,10 +173,10 @@ function extractBusinessData(card) {
             address,
             hasWebsite,
             websiteStatus: hasWebsite ? 'Yes' : 'No',
-            hours: 'Not available',
-            mapsUrl: ypUrl,
+            hours,
+            mapsUrl: ghanaYelloUrl,
             scrapedAt: new Date().toISOString(),
-            source: 'Yellow Pages'
+            source: 'GhanaYello'
         };
 
         businessData.isActive = isBusinessActive(businessData);
@@ -155,7 +187,7 @@ function extractBusinessData(card) {
         return businessData;
 
     } catch (error) {
-        console.error('Error extracting Yellow Pages business data:', error);
+        console.error('Error extracting GhanaYello business data:', error);
         return null;
     }
 }
@@ -170,15 +202,17 @@ async function scanBusinessListings() {
     const results = [];
 
     try {
-        console.log('🔍 Starting Yellow Pages scan...');
+        console.log('🇬🇭 Starting GhanaYello scan...');
 
-        const businessCards = document.querySelectorAll(CONFIG.selectors.businessCard);
-        console.log(`📋 Found ${businessCards.length} Yellow Pages business listings`);
+        // Try multiple selectors to find business cards
+        let businessCards = document.querySelectorAll(CONFIG.selectors.businessCard);
+
+        console.log(`📋 Found ${businessCards.length} GhanaYello business listings`);
 
         if (businessCards.length === 0) {
             return {
                 success: false,
-                message: 'No business listings found. Make sure you are on a Yellow Pages search results page.',
+                message: 'No business listings found. Make sure you are on a GhanaYello search results page.',
             };
         }
 
@@ -207,17 +241,17 @@ async function scanBusinessListings() {
             lastScan: new Date().toISOString(),
         });
 
-        console.log(`✅ Yellow Pages scan complete! Found ${results.length} businesses`);
+        console.log(`✅ GhanaYello scan complete! Found ${results.length} businesses`);
 
         return {
             success: true,
             count: results.length,
             leads: results,
-            message: `Successfully scanned ${results.length} businesses from Yellow Pages`,
+            message: `Successfully scanned ${results.length} businesses from GhanaYello`,
         };
 
     } catch (error) {
-        console.error('❌ Yellow Pages scan error:', error);
+        console.error('❌ GhanaYello scan error:', error);
         return {
             success: false,
             message: `Error during scan: ${error.message}`,
@@ -260,7 +294,7 @@ async function clearResults() {
 // MESSAGE LISTENER
 // ===========================
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    console.log('📨 Yellow Pages message received:', request.action);
+    console.log('📨 GhanaYello message received:', request.action);
 
     switch (request.action) {
         case 'scanPage':
@@ -281,4 +315,4 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
 });
 
-console.log('✅ Lead Finder Pro: Ready to scan Yellow Pages!');
+console.log('✅ Lead Finder Pro: Ready to scan GhanaYello! 🇬🇭');
