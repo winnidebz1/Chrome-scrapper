@@ -62,12 +62,28 @@ function updateStats() {
   elements.exportBtn.disabled = !hasResults;
   elements.copyBtn.disabled = !hasResults;
   elements.clearResults.disabled = allLeads.length === 0;
+
+  // Debug logging
+  console.log('📊 Stats Update:', {
+    totalLeads: allLeads.length,
+    filteredLeads: filteredLeads.length,
+    exportBtnDisabled: elements.exportBtn.disabled,
+    copyBtnDisabled: elements.copyBtn.disabled
+  });
 }
 
 /**
  * Apply filters to leads
  */
 function applyFilters() {
+  console.log('🔍 Applying filters to', allLeads.length, 'leads');
+  console.log('Filter states:', {
+    noWebsite: elements.filterNoWebsite.checked,
+    hasPhone: elements.filterHasPhone.checked,
+    activeOnly: elements.filterActive.checked,
+    minReviews: elements.minReviews.value
+  });
+
   filteredLeads = allLeads.filter(lead => {
     // Filter: No Website Only
     if (elements.filterNoWebsite.checked && lead.hasWebsite) {
@@ -92,6 +108,12 @@ function applyFilters() {
 
     return true;
   });
+
+  console.log('✅ Filtered down to', filteredLeads.length, 'leads');
+  if (filteredLeads.length === 0 && allLeads.length > 0) {
+    console.log('⚠️ All leads were filtered out! Check your filter settings.');
+    console.log('Sample lead:', allLeads[0]);
+  }
 
   renderResults();
   updateStats();
