@@ -1,37 +1,65 @@
 {
-  "manifest_version": 3,
-  "name": "Lead Finder Pro - Business Scraper",
-  "version": "1.0.0",
-  "description": "Identify active businesses without websites on Google Maps for lead generation",
-  "permissions": [
-    "activeTab",
-    "scripting",
-    "storage"
-  ],
-  "host_permissions": [
-    "https://www.google.com/maps/*"
-  ],
-  "action": {
-    "default_popup": "popup.html",
-    "default_icon": {
-      "16": "icons/icon16.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
+    "manifest_version": 3,
+    "name": "Lead Finder Pro - Business Scraper",
+    "version": "1.1.0",
+    "description": "Identify active businesses without websites on Google Maps, Yelp, Yellow Pages, and more for lead generation",
+    "permissions": [
+        "activeTab",
+        "scripting",
+        "storage"
+    ],
+    "host_permissions": [
+        "https://www.google.com/maps/*",
+        "https://maps.google.com/*",
+        "https://www.yelp.com/*",
+        "https://www.yellowpages.com/*",
+        "https://www.facebook.com/*",
+        "https://www.linkedin.com/*"
+    ],
+    "action": {
+        "default_popup": "popup.html",
+        "default_icon": {
+            "16": "icons/icon16.png",
+            "48": "icons/icon48.png",
+            "128": "icons/icon128.png"
+        }
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://www.google.com/maps/*",
+                "https://maps.google.com/*"
+            ],
+            "js": [
+                "contentScript.js"
+            ],
+            "run_at": "document_idle"
+        },
+        {
+            "matches": [
+                "https://www.yelp.com/*"
+            ],
+            "js": [
+                "contentScriptYelp.js"
+            ],
+            "run_at": "document_idle"
+        },
+        {
+            "matches": [
+                "https://www.yellowpages.com/*"
+            ],
+            "js": [
+                "contentScriptYellowPages.js"
+            ],
+            "run_at": "document_idle"
+        }
+    ],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "icons": {
+        "16": "icons/icon16.png",
+        "48": "icons/icon48.png",
+        "128": "icons/icon128.png"
     }
-  },
-  "content_scripts": [
-    {
-      "matches": ["https://www.google.com/maps/*"],
-      "js": ["contentScript.js"],
-      "run_at": "document_idle"
-    }
-  ],
-  "background": {
-    "service_worker": "background.js"
-  },
-  "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
-  }
 }

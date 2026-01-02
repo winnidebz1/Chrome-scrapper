@@ -364,10 +364,23 @@ async function scanPage() {
 
     console.log('Current tab URL:', tab.url);
 
-    // Check if on Google Maps - more flexible check
-    if (!tab.url || !tab.url.includes('google.com/maps')) {
-      throw new Error('Please navigate to Google Maps (https://www.google.com/maps) and search for businesses first');
+    // Detect which business directory we're on
+    const supportedSites = [
+      { name: 'Google Maps', pattern: 'google.com/maps', example: 'https://www.google.com/maps' },
+      { name: 'Yelp', pattern: 'yelp.com', example: 'https://www.yelp.com/search?find_desc=restaurants' },
+      { name: 'Yellow Pages', pattern: 'yellowpages.com', example: 'https://www.yellowpages.com/search' },
+      { name: 'Facebook', pattern: 'facebook.com', example: 'https://www.facebook.com/search' },
+      { name: 'LinkedIn', pattern: 'linkedin.com', example: 'https://www.linkedin.com/search' }
+    ];
+
+    const currentSite = supportedSites.find(site => tab.url && tab.url.includes(site.pattern));
+
+    if (!currentSite) {
+      const siteList = supportedSites.map(s => s.name).join(', ');
+      throw new Error(`Please navigate to a supported business directory first:\n${siteList}`);
     }
+
+    console.log(`📍 Detected: ${currentSite.name}`);
 
     // Try to inject content script if not already loaded
     try {
