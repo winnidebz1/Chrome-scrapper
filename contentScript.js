@@ -181,6 +181,8 @@ function extractBusinessData(card) {
     // Check website status
     const websiteElement = card.querySelector(CONFIG.selectors.website);
     const hasWebsite = !hasNoWebsite(websiteElement);
+    console.log(`🌐 Website check for ${name}:`, { element: !!websiteElement, hasWebsite, text: websiteElement?.textContent?.trim() });
+
 
     // Extract business hours
     const hoursElement = card.querySelector(CONFIG.selectors.hours);
