@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "Lead Finder Pro - Ghana Business Scraper",
     "version": "1.2.0",
-    "description": "Find active businesses without websites in Ghana - Google Maps and GhanaYello",
+    "description": "Find active businesses without websites in Ghana - Google Maps, GhanaYello, BusinessGhana and more",
     "permissions": [
         "activeTab",
         "scripting",
@@ -12,7 +12,9 @@
         "https://www.google.com/maps/*",
         "https://maps.google.com/*",
         "https://www.ghanayello.com/*",
-        "https://ghanayello.com/*"
+        "https://ghanayello.com/*",
+        "https://www.businessghana.com/*",
+        "https://businessghana.com/*"
     ],
     "action": {
         "default_popup": "popup.html",
@@ -40,6 +42,16 @@
             ],
             "js": [
                 "contentScriptGhanaYello.js"
+            ],
+            "run_at": "document_idle"
+        },
+        {
+            "matches": [
+                "https://www.businessghana.com/*",
+                "https://businessghana.com/*"
+            ],
+            "js": [
+                "contentScriptBusinessGhana.js"
             ],
             "run_at": "document_idle"
         }

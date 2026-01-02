@@ -367,7 +367,8 @@ async function scanPage() {
     // Detect which business directory we're on
     const supportedSites = [
       { name: 'Google Maps', pattern: 'google.com/maps', example: 'https://www.google.com/maps' },
-      { name: 'GhanaYello', pattern: 'ghanayello.com', example: 'https://www.ghanayello.com' }
+      { name: 'GhanaYello', pattern: 'ghanayello.com', example: 'https://www.ghanayello.com' },
+      { name: 'BusinessGhana', pattern: 'businessghana.com', example: 'https://www.businessghana.com' }
     ];
 
     const currentSite = supportedSites.find(site => tab.url && tab.url.includes(site.pattern));
